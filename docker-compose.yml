@@ -7,16 +7,20 @@ services:
     container_name: wp_database
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: wordpress
-      MYSQL_PASSWORD: wordpress
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-wordpress}
+      MYSQL_USER: ${MYSQL_USER:-wordpress}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
     networks:
       - wordpress_network
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   # WordPress
   wordpress:
@@ -30,7 +34,7 @@ services:
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
       WORDPRESS_DB_NAME: wordpress
       WORDPRESS_DEBUG: 1
       WORDPRESS_CONFIG_EXTRA: |
@@ -52,6 +56,10 @@ services:
       - ./config/php.ini:/usr/local/etc/php/conf.d/custom.ini
     networks:
       - wordpress_network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:80" ]
+      timeout: 10s
+      retries: 5
 
   # phpMyAdmin for database management
   phpmyadmin:
@@ -65,7 +73,7 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     networks:
       - wordpress_network
 
@@ -83,11 +91,12 @@ services:
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
       WORDPRESS_DB_NAME: wordpress
     networks:
       - wordpress_network
-    command: tail -f /dev/null
+    command: wp --info --allow-root
+    restart: "no"
 
 volumes:
   db_data:

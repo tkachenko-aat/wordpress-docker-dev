@@ -1,4 +1,4 @@
-# WordPress Docker Development Environment
+# WordPress Docker Boilerplate Development Environment Starter Kit
 
 A complete Docker-based WordPress development environment with WooCommerce, optimized for theme and plugin development.
 
@@ -35,15 +35,20 @@ A complete Docker-based WordPress development environment with WooCommerce, opti
 
 ```
 wordpress-dev/
+├── .env.example              # Environment variables template
+├── .gitignore               # Git ignore rules
+├── LICENSE                  # MIT license
+├── Makefile                 # Common commands
 ├── README.md
-├── docker-compose.yml         # Docker services configuration
-├── setup.sh                   # Automated setup script
+├── docker-compose.yml       # Docker services configuration
+├── setup.sh                 # Automated setup script
 ├── config/
-│   └── php.ini               # Custom PHP configuration
-├── themes/                   # Your custom themes (mounted volume)
-│   └── dev-theme/           # Basic starter theme
-├── plugins/                  # Your custom plugins (mounted volume)
-└── uploads/                  # Media uploads (mounted volume)
+│   └── php.ini             # Custom PHP configuration
+├── themes/                  # Your custom themes (mounted volume)
+│   └── dev-theme/          # Basic starter theme
+├── plugins/                 # Your custom plugins (mounted volume)
+└── uploads/                 # Media uploads (mounted volume)
+    └── .gitkeep            # Keep directory in git
 ```
 
 ## 🛠️ What's Included
@@ -106,6 +111,31 @@ docker-compose exec wpcli wp scaffold plugin my-plugin --allow-root
 
 # Activate plugin
 docker-compose exec wpcli wp plugin activate my-plugin --allow-root
+```
+
+## 🗄️ Database Management
+
+### Connection Details
+- **Host**: localhost:3306 (from host machinels
+- **Database**: wordpress (or value from .env)
+- **Username**: wordpress (or value from .env)
+- **Password**: Check your .env file
+
+### phpMyAdmin Access
+- **URL**: http://localhost:8081
+- **Username**: root
+- **Password**: Your MYSQL_ROOT_PASSWORD from .env
+
+### Backup & Restore
+```bash
+# Export database
+docker-compose exec wpcli wp db export backup.sql --allow-root
+
+# Import database
+docker-compose exec wpcli wp db import backup.sql --allow-root
+
+# Search and replace URLs
+docker-compose exec wpcli wp search-replace 'oldurl.com' 'localhost:8080' --allow-root
 ```
 
 ## 🔧 WP-CLI Commands

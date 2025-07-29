@@ -1,4 +1,16 @@
 #!/bin/bash
+set -euo pipefail
+
+handle_error() {
+    echo "❌ Error on line $1"
+    exit 1
+}
+trap 'handle_error $LINENO' ERR
+
+if ! docker info >/dev/null 2>&1; then
+    echo "❌ Docker is not running. Please start Docker first."
+    exit 1
+fi
 
 # WordPress Docker Development Environment Setup Script
 
@@ -115,9 +127,9 @@ echo "   phpMyAdmin: http://localhost:8081"
 echo ""
 echo "📋 Database credentials:"
 echo "   Host: localhost:3306"
-echo "   Database: wordpress"
-echo "   Username: wordpress"
-echo "   Password: wordpress"
+echo "   Database: ${MYSQL_DATABASE:-wordpress}"
+echo "   Username: ${MYSQL_USER:-wordpress}"
+echo "   Password: Check your .env file"
 echo ""
 echo "🛠️  Development directories:"
 echo "   Themes: ./themes/"
